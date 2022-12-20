@@ -5,7 +5,8 @@ using namespace std;
 template <typename K, typename T>
 class Collection
 {
-protected: 
+ 
+public:
 	class Node				// Класс для элемента связной структуры
 	{
 	public:
@@ -27,9 +28,11 @@ protected:
 		void fixsize() {
 			this->sizeNode = getRNodesize(this->left) + getRNodesize(this->right) + 1;
 			}
+		K getKey() {
+			return key;
+		}
 	};
 	int _size = 0;			// Размер коллекции (число элементов с данными)
-public:
 	virtual int size() = 0;		// Опрос значения текущего размера
 	virtual void clear() = 0;		// Очищает коллекцию полностью
 	virtual bool empty() = 0;		// Проверка коллекции на пустоту
@@ -73,7 +76,7 @@ Collection<K, T>::Node::Node(const Node& node)
 template<typename K, typename T>
 Collection<K, T>::Node::~Node()
 {
-	delete this->left;
-	delete this->right;
+	//delete this->left;
+	//delete this->right;
 }
 

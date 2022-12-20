@@ -3,10 +3,80 @@
 #include <conio.h>
 #include <Windows.h>
 #include "RBSTree.h"
+
 #define key int
 #define val string
 
 using namespace std;
+
+int _print_t(typename Collection<key, val>::Node* tree, int is_left, int offset, int depth, char s[20][255])
+{
+	char b[20];
+	int width = 5;
+
+	if (!tree) return 0;
+
+	sprintf_s(b, "(%03d)", tree->getKey());
+
+	int left = _print_t(tree->left, 1, offset, depth + 1, s);
+	int right = _print_t(tree->right, 0, offset + left + width, depth + 1, s);
+
+#ifdef COMPACT
+	for (int i = 0; i < width; i++)
+		s[depth][offset + left + i] = b[i];
+
+	if (depth && is_left) {
+
+		for (int i = 0; i < width + right; i++)
+			s[depth - 1][offset + left + width / 2 + i] = '-';
+
+		s[depth - 1][offset + left + width / 2] = '.';
+
+	}
+	else if (depth && !is_left) {
+
+		for (int i = 0; i < left + width; i++)
+			s[depth - 1][offset - width / 2 + i] = '-';
+
+		s[depth - 1][offset + left + width / 2] = '.';
+	}
+#else
+	for (int i = 0; i < width; i++)
+		s[2 * depth][offset + left + i] = b[i];
+
+	if (depth && is_left) {
+
+		for (int i = 0; i < width + right; i++)
+			s[2 * depth - 1][offset + left + width / 2 + i] = '-';
+
+		s[2 * depth - 1][offset + left + width / 2] = '+';
+		s[2 * depth - 1][offset + left + width + right + width / 2] = '+';
+
+	}
+	else if (depth && !is_left) {
+
+		for (int i = 0; i < left + width; i++)
+			s[2 * depth - 1][offset - width / 2 + i] = '-';
+
+		s[2 * depth - 1][offset + left + width / 2] = '+';
+		s[2 * depth - 1][offset - width / 2 - 1] = '+';
+	}
+#endif
+
+	return left + width + right;
+}
+
+void print_t(typename Collection<int, string>::Node* tree)
+{
+	char s[20][255];
+	for (int i = 0; i < 20; i++)
+		sprintf_s(s[i], "%80s", " ");
+
+	_print_t(tree, 0, 0, 0, s);
+
+	for (int i = 0; i < 20; i++)
+		printf("%s\n", s[i]);
+}
 
 void repaintConsole()
 {
@@ -84,10 +154,11 @@ int main() {
 	tree.insert(10,"Александр");
 	tree.insert(30, "Татьяна");
 	tree.insert(50, "Наталья");
+	
 	int index = 0;
 	key keyTmp;
 	val valTmp;
-					BSTree<key, val> testTree2;
+					RBSTree<key, val> testTree2;
 					BSTree<key, val> testTree;
 	while (true) {
 
@@ -105,7 +176,9 @@ int main() {
 			case 32://space
 				system("cls");
 				
-				tree.showDirectly(cout);
+				print_t(tree.getRoot());
+ 				//tree.draw( cout);
+				
 				system("pause");
 				system("cls");
 				break;
@@ -251,28 +324,31 @@ int main() {
 					cout << "Тест двоичного дерева INSERT = " << testTree.countMovingInsert / float(nodesAmount / 2) * 1.39f << endl
 						<< "Тест двоичного дерева DELETE = " << testTree.countMovingDelete / float(nodesAmount / 2) * 1.39f << endl
 						<< "Тест двоичного дерева SEARCH = " << testTree.countMovingFind / float(nodesAmount / 2) * 1.39f << endl;
-					for (int i = 0; i < nodesAmount; i++)
-						testTree2.insert(i, "a" + rand() % 26);
+					
 					testTree2.countMovingInsert = 0;
 					testTree2.countMovingDelete = 0;
 					testTree2.countMovingFind = 0;
+					for (int i = 0; i < nodesAmount; i++)
+						testTree2.insert(rand() % rangeKey, "a" + rand() % 26);
+					testTree2.countMovingInsert = 0;
 					for (int i = 0; i < nodesAmount / 2; i++) {
-						testTree2.insert(nodesAmount + rand() % nodesAmount, "a" + rand() % 26);
+						testTree2.insert(rand() % nodesAmount, "a" + rand() % 26);
 						try
 						{
-							testTree2.remove(nodesAmount + rand() % nodesAmount);
+							testTree2.remove(rand() % nodesAmount);
 						}
-						catch (const std::exception&) {}
+						catch (const std::exception&) {}//Для пропуска сообщений о том что некоторые узлы былди не найдены
 						try
 						{
-							testTree2.get(nodesAmount + rand() % nodesAmount);
+							testTree2.get(rand() % rangeKey);
 						}
 						catch (const std::exception&) {}
 					}
-					cout <<"Тест вырожденного двоичного дерева INSERT = " << testTree2.countMovingInsert / nodesAmount << endl
-						<< "Тест вырожденного двоичного дерева DELETE = " << testTree2.countMovingDelete / nodesAmount << endl
-						<< "Тест вырожденного двоичного дерева SEARCH = " << testTree2.countMovingFind / nodesAmount << endl;
-
+					cout <<"Тест рандомизированного двоичного дерева INSERT = " << testTree2.countMovingInsert / float(nodesAmount / 2) * 1.39f << endl
+						<< "Тест рандомизированного двоичного дерева DELETE = " << testTree2.countMovingDelete / float(nodesAmount / 2) * 1.39f << endl
+						<< "Тест рандомизированного двоичного дерева SEARCH = " << testTree2.countMovingFind / float(nodesAmount / 2) * 1.39f << endl;
+					testTree.clear();
+					testTree2.clear();
 					system("pause");
 					system("cls");
 					break;
@@ -298,3 +374,11 @@ int main() {
 		}
 	}
 }
+
+
+
+
+
+
+
+

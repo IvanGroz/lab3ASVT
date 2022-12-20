@@ -41,7 +41,9 @@ public:
 	void put(K key, T value);
 
 	void showByScheme(ostream& os);
-
+	Collection<K, T>::Node* getRoot() {
+		return root;
+	}
 
 
 	class iterator
@@ -115,9 +117,31 @@ public:
 
 	void showDirectly(ostream& os);
 	void showBack(ostream& os);
+	void draw(ostream& os);
+	void draw(typename Collection<K,T>::Node* rootF,int lvl, ostream& os);
 };
 
+template<typename K, typename T>
+ void BSTree<K, T>::draw(ostream& os)
+ {
+	 draw(this->root, 1, os);
+}
 
+template<typename K, typename T>
+ void BSTree<K, T>::draw(typename Collection<K, T>::Node* rootF, int lvl,ostream& os)
+{
+	 if (rootF == nullptr) {
+		 return;
+	 }
+	 draw(rootF->right, lvl + 1,os);
+	 for (int i = 0; i < lvl; i++) {
+		 os << "   ";
+	 }
+	 os << rootF->key;
+	 os << '\n';
+	 draw(rootF->left, lvl + 1, os);
+	 return;
+}
 
 template<typename K, typename T>
 void BSTree<K, T>::insert(K key, typename Collection<K, T>::Node* root, T value)
@@ -368,6 +392,7 @@ void BSTree<K, T>::showBack(ostream& os)
 
 template<typename K, typename T>
 typename Collection<K, T>::Node* BSTree<K, T>::max(typename Collection<K, T>::Node* root)
+
 {
 	if (root->right == nullptr) return root;
 	return max(root->right);
